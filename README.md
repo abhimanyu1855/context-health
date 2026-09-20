@@ -16,6 +16,21 @@ It is **NOT**:
 
 The score has not been empirically validated.
 
+## Relevant Context Ratio
+
+Relevant Context Ratio is an experimental metric representing the fraction of currently measured context tokens considered relevant to the task.
+
+For V0.1, relevance must be **explicitly supplied or annotated**. The system does **NOT** currently determine semantic relevance automatically.
+
+It is **NOT**:
+- a hallucination prediction
+- a reliability prediction
+- a validated degradation prediction
+- a claim of semantic understanding
+- a machine-learned relevance detector
+
+This metric serves as a foundational measurement primitive for future validation and experimentation.
+
 ## Install
 
 ```bash
