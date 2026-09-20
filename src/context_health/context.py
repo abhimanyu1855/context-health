@@ -36,6 +36,10 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from context_health.tool_retries import ToolRetryDetector, ToolRetryEvent
 
 
 # ---------------------------------------------------------------------------
@@ -74,6 +78,7 @@ class ContextState:
     files_referenced: list[str] = field(default_factory=list)
     tool_calls: int = 0
     correction_events: int = 0
+    tool_retries: int = 0
 
 
 # ---------------------------------------------------------------------------
@@ -111,6 +116,8 @@ class ContextTracker:
         self._files_referenced: list[str] = []
         self._tool_calls: int = 0
         self._correction_events: int = 0
+        self._tool_retries: int = 0
+        self._retry_tracker: Any = None
 
     # -- recording -----------------------------------------------------------
 
@@ -167,6 +174,49 @@ class ContextTracker:
         """Record an explicit user correction event."""
         self._correction_events += 1
 
+    def record_tool_retry(self) -> None:
+        """Record an explicit tool retry event."""
+        self._tool_retries += 1
+
+    def record_tool_attempt(
+        self,
+        tool_name: str,
+        *,
+        operation_id: str | None = None,
+        success: bool = True,
+        is_retry: bool = False,
+        error_message: str | None = None,
+        turn_index: int | None = None,
+    ) -> ToolRetryEvent | None:
+        """Record a tool attempt and automatically detect retries.
+
+        Increments cumulative tool calls. If this attempt constitutes a retry
+        (e.g. repeated operation after failure or explicit retry flag),
+        cumulative tool retries are also incremented.
+
+        Returns
+        -------
+        ToolRetryEvent | None
+            The detected retry event, or None if this was not a retry.
+        """
+        self._tool_calls += 1
+        if self._retry_tracker is None:
+            from context_health.tool_retries import ToolRetryDetector
+
+            self._retry_tracker = ToolRetryDetector()
+
+        event = self._retry_tracker.record_attempt(
+            tool_name=tool_name,
+            operation_id=operation_id,
+            success=success,
+            is_retry=is_retry,
+            error_message=error_message,
+            turn_index=turn_index,
+        )
+        if event is not None:
+            self._tool_retries += 1
+        return event
+
     # -- state retrieval -----------------------------------------------------
 
     @property
@@ -192,4 +242,5 @@ class ContextTracker:
             files_referenced=list(self._files_referenced),
             tool_calls=self._tool_calls,
             correction_events=self._correction_events,
+            tool_retries=self._tool_retries,
         )

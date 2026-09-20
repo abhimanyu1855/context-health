@@ -15,6 +15,13 @@ from context_health.corrections import (
     detect_corrections,
     is_correction,
 )
+from context_health.tool_retries import (
+    ToolAttempt,
+    ToolRetryDetector,
+    ToolRetryEvent,
+    ToolRetryResult,
+    detect_tool_retries,
+)
 
 __all__ = [
     "Contradiction",
@@ -23,7 +30,12 @@ __all__ = [
     "CorrectionDetector",
     "CorrectionEvent",
     "CorrectionResult",
+    "ToolAttempt",
+    "ToolRetryDetector",
+    "ToolRetryEvent",
+    "ToolRetryResult",
     "detect_contradictions",
     "detect_corrections",
+    "detect_tool_retries",
     "is_correction",
 ]

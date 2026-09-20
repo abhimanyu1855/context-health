@@ -58,7 +58,24 @@ It is **NOT**:
 - a hallucination detector
 - a measure of agent correctness or failure probability
 
-It has not been empirically validated.
+## Tool Retries
+
+Tool retry tracking is an experimental deterministic observation signal that identifies repeated tool invocations during a session.
+
+It detects tool retries when:
+- an attempt targets the same tool and operation identifier after a previous failed attempt (e.g. `run_command("pytest")` failing and then being executed again), or
+- an attempt is explicitly flagged as a retry (`is_retry=True`).
+
+Ordinary repeated calls with different arguments (such as `read_file("a.py")` followed by `read_file("b.py")`) or independent successful operations are **NOT** classified as retries.
+
+It is **NOT**:
+- an assessment of whether the agent was "wrong"
+- a measure of context degradation
+- an automatic retry execution or intervention system
+- an LLM-based or semantic similarity evaluator
+- a hallucination detector
+
+It has not been empirically validated. A tool retry count does not itself mean the agent is incorrect.
 
 ## Install
 
