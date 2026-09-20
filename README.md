@@ -46,6 +46,20 @@ It is **NOT**:
 
 It has not been empirically validated as a general contradiction detector.
 
+## Correction Events
+
+Correction event detection is an experimental deterministic heuristic that identifies explicit user correction, rejection, and redirect statements during a conversation.
+
+It detects explicit conversational correction markers (such as "No, use PostgreSQL instead", "That's wrong", or "I meant X, not Y").
+
+It is **NOT**:
+- an LLM-based sentiment or user satisfaction classifier
+- a general semantic intent parser
+- a hallucination detector
+- a measure of agent correctness or failure probability
+
+It has not been empirically validated.
+
 ## Install
 
 ```bash

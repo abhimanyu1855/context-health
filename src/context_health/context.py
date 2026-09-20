@@ -73,6 +73,7 @@ class ContextState:
 
     files_referenced: list[str] = field(default_factory=list)
     tool_calls: int = 0
+    correction_events: int = 0
 
 
 # ---------------------------------------------------------------------------
@@ -109,12 +110,22 @@ class ContextTracker:
         self._latest_input_tokens: int = 0
         self._files_referenced: list[str] = []
         self._tool_calls: int = 0
+        self._correction_events: int = 0
 
     # -- recording -----------------------------------------------------------
 
-    def record_user_message(self) -> None:
-        """Record that a user message was added to the conversation."""
+    def record_user_message(self, content: str | None = None) -> None:
+        """Record that a user message was added to the conversation.
+
+        If ``content`` is provided and contains an explicit user correction,
+        the correction event count is automatically incremented.
+        """
         self._message_count += 1
+        if content:
+            from context_health.corrections import is_correction
+
+            if is_correction(content):
+                self._correction_events += 1
 
     def record_assistant_response(
         self,
@@ -152,6 +163,10 @@ class ContextTracker:
         """Record that a tool call occurred."""
         self._tool_calls += 1
 
+    def record_correction_event(self) -> None:
+        """Record an explicit user correction event."""
+        self._correction_events += 1
+
     # -- state retrieval -----------------------------------------------------
 
     @property
@@ -176,4 +191,5 @@ class ContextTracker:
             context_utilization=utilization,
             files_referenced=list(self._files_referenced),
             tool_calls=self._tool_calls,
+            correction_events=self._correction_events,
         )
