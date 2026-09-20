@@ -31,6 +31,21 @@ It is **NOT**:
 
 This metric serves as a foundational measurement primitive for future validation and experimentation.
 
+## Contradiction Detection
+
+Contradiction detection is an experimental deterministic heuristic designed to identify explicit instruction and requirement reversals within a conversation.
+
+It detects only a limited set of explicit syntactic instruction reversals (such as "use X" vs "do not use X" or "enable X" vs "disable X").
+
+It is **NOT**:
+- a general semantic reasoning engine or arbitrary contradiction detector
+- an LLM-based evaluation system
+- a hallucination detector
+- a reasoning verification tool
+- a correctness verification or validated reliability prediction system
+
+It has not been empirically validated as a general contradiction detector.
+
 ## Install
 
 ```bash
