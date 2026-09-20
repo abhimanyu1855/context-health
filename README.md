@@ -4,6 +4,54 @@ Measure the health of an AI coding-agent context. Exposes a 0–100 **Context He
 
 > **Status:** V0.1 — experimental heuristic, not validated.
 
+## Context Health Score
+
+Context Health is an experimental, deterministic 0–100 score computed from observable session signals.
+
+It is computed as a weighted penalty model:
+
+```
+health_score = 100 * (1 - weighted_penalty)
+```
+
+where:
+
+```
+weighted_penalty =
+    0.25 * utilization_penalty +
+    0.30 * relevance_penalty +
+    0.15 * complexity_penalty +
+    0.10 * contradiction_penalty +
+    0.10 * correction_penalty +
+    0.10 * retry_penalty
+```
+
+Penalties:
+- `utilization_penalty` = `context_utilization`
+- `relevance_penalty` = `1 - relevant_context_ratio`
+- `complexity_penalty` = `task_complexity`
+- `contradiction_penalty` = `contradictions / (contradictions + 3)`
+- `correction_penalty` = `corrections / (corrections + 3)`
+- `retry_penalty` = `retries / (retries + 3)`
+
+### Status Bands
+- **80.0–100.0**: `healthy`
+- **60.0–79.99**: `watch`
+- **40.0–59.99**: `warning`
+- **0.0–39.99**: `critical`
+
+### Important Disclaimers
+
+Context Health is an **experimental heuristic observability metric**.
+
+The weights and thresholds are initial priors and are **NOT** empirically validated.
+
+The score must **NOT** be interpreted as:
+- hallucination probability or detector
+- probability that the agent is correct
+- probability that the agent will fail
+- a machine-learning reliability prediction
+
 ## Task Complexity
 
 Task complexity is an experimental deterministic heuristic based on observable session/task signals.
