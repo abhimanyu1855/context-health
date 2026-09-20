@@ -1,6 +1,43 @@
 """Configuration for Context Health."""
 
+from __future__ import annotations
+
 from pydantic import BaseModel, Field
+
+
+# ---------------------------------------------------------------------------
+# Model context-window mapping
+# ---------------------------------------------------------------------------
+
+MODEL_CONTEXT_WINDOWS: dict[str, int] = {
+    "claude-sonnet-4-20250514": 200_000,
+    "claude-haiku-4-20250414": 200_000,
+    "claude-opus-4-20250514": 200_000,
+    "claude-sonnet-4-5-20250929": 200_000,
+    "claude-opus-4-5-20251101": 200_000,
+}
+"""Known context-window sizes (in tokens) for supported models.
+
+This is a simple lookup table — NOT model routing or automatic model
+selection.  If a model is not listed here, callers should fall back to
+a configured default.
+"""
+
+DEFAULT_CONTEXT_WINDOW: int = 200_000
+"""Fallback context-window size when the model is not in the mapping."""
+
+
+def get_context_window(model: str) -> int:
+    """Return the context-window size for a model.
+
+    Falls back to :data:`DEFAULT_CONTEXT_WINDOW` if the model is unknown.
+    """
+    return MODEL_CONTEXT_WINDOWS.get(model, DEFAULT_CONTEXT_WINDOW)
+
+
+# ---------------------------------------------------------------------------
+# Runtime configuration
+# ---------------------------------------------------------------------------
 
 
 class ContextHealthConfig(BaseModel):
