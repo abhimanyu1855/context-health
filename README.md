@@ -131,12 +131,81 @@ It has not been empirically validated. A tool retry count does not itself mean t
 pip install -e ".[dev]"
 ```
 
-## Usage
+## CLI Usage
 
 ```bash
+# Display help and commands
 context-health --help
+
+# Measure Context Health with observable signals and record telemetry
+context-health measure --utilization 0.45 --relevance 0.85 --complexity 0.30 --corrections 1
+
+# View recent local telemetry records
+context-health history
+
+# Explain signal penalties and contributions for the latest measurement
+context-health explain
+
+# Check version
 context-health version
 ```
+
+### Example Output
+
+```text
+Context Health: 83.2  [healthy]  (Experimental heuristic)
+
+Context:
+  utilization: 45.0%
+  relevant:    85.0%
+  complexity:  30.0%
+
+Signals:
+  contradictions: 0
+  corrections:    1
+  tool retries:   0
+
+Recommendation:
+  CONTINUE (informational UX guidance)
+```
+
+## JSONL Telemetry
+
+Context Health persists local, append-only telemetry records to:
+
+```text
+~/.context-health/telemetry.jsonl
+```
+
+### Telemetry Schema
+
+Each line is a single JSON object capturing:
+
+- `timestamp`: UTC ISO 8601 string
+- `session_id`: Opaque stable session UUID
+- `turn_index`: Turn sequence index
+- `health_score`: Score in `[0.0, 100.0]`
+- `health_status`: `'healthy'`, `'watch'`, `'warning'`, or `'critical'`
+- `context_utilization`: Float in `[0.0, 1.0]`
+- `relevant_context_ratio`: Float in `[0.0, 1.0]`
+- `task_complexity`: Float in `[0.0, 1.0]`
+- `contradiction_count`: Integer count
+- `correction_event_count`: Integer count
+- `tool_call_count`: Integer count
+- `tool_retry_count`: Integer count
+- `model`: Optional model identifier string
+- `recommendation`: Informational UX recommendation (`'CONTINUE'`, `'MONITOR'`, `'EVALUATE'`, `'CONSIDER_FRESH_CONTEXT'`)
+- `penalties`: Object mapping individual signals to normalized penalties in `[0.0, 1.0]`
+- `contributions`: Object mapping individual signals to weighted penalty points
+
+### Privacy & Local Storage
+
+Telemetry records are strictly **local** and contain **only numeric and categorical measurements**.
+They do **NOT** store:
+- API keys or secrets
+- Authorization tokens
+- Raw prompt texts or conversation transcripts
+- Raw model responses
 
 ## Development
 
