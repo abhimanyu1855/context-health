@@ -207,6 +207,36 @@ They do **NOT** store:
 - Raw prompt texts or conversation transcripts
 - Raw model responses
 
+## Agent Event Protocol
+
+The agent event protocol provides a provider-neutral boundary for real coding-agent telemetry.  Any agent adapter can emit a small set of frozen event dataclasses, and the `ContextHealthRecorder` maps them to the existing `ContextTracker`.
+
+### Events
+
+| Event | Purpose |
+|---|---|
+| `SessionStarted` | Marks session start (session ID, context window, optional model) |
+| `TurnStarted` | Marks beginning of a user turn |
+| `ContextUpdated` | Reports provider-reported token measurements |
+| `ToolCallStarted` | Records a tool invocation start |
+| `ToolCallFinished` | Records a tool invocation result (success, retry flag, error category) |
+| `TurnFinished` | Marks end of a turn with externally supplied measurements |
+| `SessionFinished` | Marks session end |
+
+### ContextHealthRecorder
+
+`ContextHealthRecorder` consumes agent events and drives the existing `ContextTracker`.  It enforces lightweight session/turn lifecycle rules and stores externally supplied measurements (`relevant_context_ratio`, `task_complexity`, `correction_detected`).
+
+The recorder does **NOT** infer these signals — it accepts them from the caller when available.
+
+### Tool Error Categories
+
+Tool errors use a closed `ToolErrorCategory` enum (`timeout`, `permission_denied`, `not_found`, `syntax_error`, `rate_limited`, `network_error`, `validation_error`, `unknown`).  No arbitrary strings or raw error text enter the event model.
+
+### Privacy Boundary
+
+Agent events contain **only** structural identifiers and numeric measurements.  They do **NOT** store raw prompts, responses, source code, API keys, or error messages.
+
 ## Development
 
 ```bash
